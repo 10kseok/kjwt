@@ -23,11 +23,7 @@ public class Jwt implements Serializable {
         AssertUtils.hasLength(header, "헤더가 비었습니다");
         AssertUtils.hasLength(payload, "데이터가 비었습니다");
         AssertUtils.hasLength(signature, "서명이 비었습니다");
-        StringJoiner joiner = new StringJoiner(".");
-        return joiner.add(header)
-                .add(payload)
-                .add(signature)
-                .toString();
+        return String.format("%s.%s.%s", header, payload, signature);
     }
 
     @Override

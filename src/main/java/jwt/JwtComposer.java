@@ -1,7 +1,5 @@
 package jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -9,6 +7,7 @@ import java.util.Base64;
 import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import util.SimpleObjectMapper;
 
 /**
  * Json Web Token을 발행하는 클래스
@@ -17,26 +16,30 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 2023.09.04
  */
 public class JwtComposer {
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
-    public static Jwt createJwt(Map<String, String> header, Map<String, String> payload, String secret)
-            throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException {
-        String jsonHeader = encode(objectMapper.writeValueAsBytes(header));
-        String jsonPayload = encode(objectMapper.writeValueAsBytes(payload));
-        // TODO 1-1: 서명에 사용될 알고리즘 선정하기 (우선은 HMAC 으로만)
-        String signature = encode(sign(jsonHeader + "." + jsonPayload, secret.getBytes(StandardCharsets.UTF_8), ""));
+    public static String createToken(Map<String, Object> header, Map<String, Object> payload, byte[] secret)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        return createJwt(header, payload, secret).compose();
+    }
+
+    public static Jwt createJwt(Map<String, Object> header, Map<String, Object> payload, byte[] secret)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        String jsonHeader = encode(SimpleObjectMapper.writeValueAsBytes(header));
+        String jsonPayload = encode(SimpleObjectMapper.writeValueAsBytes(payload));
+        String signature = encode(sign(jsonHeader + "." + jsonPayload, secret, "HmacSHA256"));
         return new Jwt(jsonHeader, jsonPayload, signature);
     }
 
     private static String encode(byte[] src) {
-        Base64.Encoder encoder = Base64.getUrlEncoder();
+        Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         return encoder.encodeToString(src);
     }
 
-    public static byte[] sign(String data, byte[] secret, String algorithms) throws NoSuchAlgorithmException, InvalidKeyException {
-        SecretKeySpec secretKey = new SecretKeySpec(secret, algorithms);
-        Mac mac = Mac.getInstance(algorithms);
+    private static byte[] sign(String data, byte[] secret, String algorithm) throws NoSuchAlgorithmException,
+            InvalidKeyException {
+        SecretKeySpec secretKey = new SecretKeySpec(secret, algorithm);
+        Mac mac = Mac.getInstance(algorithm);
         mac.init(secretKey);
-        return mac.doFinal(data.getBytes());
+        return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
     }
 }
