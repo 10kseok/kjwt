@@ -1,4 +1,4 @@
-package jwt;
+package json;
 
 import lombok.Getter;
 
@@ -18,12 +18,8 @@ public class JsonField {
         this.value = value;
     }
 
-    public String toJson() {
-        return String.format("\"%s\": \"%s\"", key, value);
-    }
-
     @Override
     public String toString() {
-        return toJson();
+        return String.format("\"%s\": \"%s\"", key, value);
     }
 }
