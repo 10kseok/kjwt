@@ -48,3 +48,6 @@ System.out.println("Generated JWT: " + jwt);
 
 ## 기여
 기여는 언제나 환영합니다! 버그를 발견하거나 기능 제안이 있으시면 이슈를 열어주시거나 Pull Request를 보내주세요.
+
+## 라이선스
+이 프로젝트는 MIT 라이선스를 따릅니다. 자세한 내용은 LICENSE 파일을 확인해주세요.
